@@ -207,6 +207,10 @@ def get_view(file_id):
         return send_file(io.BytesIO(file.read()), mimetype='application/pdf', as_attachment=False, download_name=file.filename)
     except:
         return "File not found", 404
+    
+@app.route('/student-dashboard.html')
+def studentdash():
+    return render_template('student-dashboard.html')
 
 @app.route('/verify_otp', methods=['GET', 'POST'])
 def verify_otp():
@@ -252,7 +256,7 @@ def verify_otp():
     return render_template('verify_otp.html')
 
 
-
+# Existing routes...
 
 if __name__ == '__main__':
     app.run(debug=True)
