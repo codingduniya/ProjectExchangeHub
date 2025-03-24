@@ -114,6 +114,52 @@ def signupforstudents():
         return redirect(url_for('verify_otp'))
 
     return render_template('sign-in_for_students.html')
+
+
+@app.route('/login_for_companys', methods=['GET', 'POST'])
+def login_for_companys():
+    if request.method == 'POST':
+        mail = request.form.get('Mail')
+        password = request.form.get('Password')
+
+        print(f"Mail entered: {mail}")
+        user = user_db.Companys.find_one({'Mail': mail})
+
+        if user:
+            print("User Found:", user)
+            if bcrypt.check_password_hash(user['Password'], password):
+                print("Password match")
+                response = make_response(redirect(url_for('upload')))
+                response.set_cookie('name', user['Name'], max_age=60*60*24*30, path='/')
+                response.set_cookie('Mail', mail, max_age=60*60*24*30, path='/')
+                return response
+            else:
+                print("Password mismatch")
+        else:
+            print("User not found in DB")
+
+        return render_template('login_for_companys.html', message="Invalid Credentials")
+
+    return render_template('login_for_companys.html')
+
+@app.route('/login_for_students', methods=['GET', 'POST'])
+def loginforstudents():
+    if request.method == 'POST':
+        mail = request.form.get('Mail')
+        password = request.form.get('Password')
+
+        user = user_db.Students.find_one({'Mail': mail})
+
+        if user and bcrypt.check_password_hash(user['Password'], password):
+            response = make_response(redirect(url_for('studentdash')))
+            response.set_cookie('name', user['Name'], max_age=60*60*24*30, path='/')
+            response.set_cookie('Mail', mail, max_age=60*60*24*30, path='/')
+            return response
+
+        return render_template('login_for_students.html', message="Invalid Credentials")
+
+    return render_template('login_for_students.html')
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
@@ -206,7 +252,7 @@ def verify_otp():
     return render_template('verify_otp.html')
 
 
-# Existing routes...
+
 
 if __name__ == '__main__':
     app.run(debug=True)
